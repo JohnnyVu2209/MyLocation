@@ -7,6 +7,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Address;
@@ -16,11 +19,16 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.mylocation.directionhelpers.FetchURL;
+import com.example.mylocation.directionhelpers.TaskLoadedCallback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -36,6 +44,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,7 +53,7 @@ public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener
+        LocationListener, TaskLoadedCallback
 {
     private Marker mMarker;
     private GoogleMap mMap;
@@ -57,8 +66,8 @@ public class MapsActivity extends FragmentActivity implements
     private double a = 37.4219983 ;private double b = -122.084;
     private int count = 0;
     private MarkerOptions address_1, address_2;
-//    private Polyline currentP
-
+    private Polyline currentPolyline;
+    private Button btn_payment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +86,61 @@ public class MapsActivity extends FragmentActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        view();
+        controlButton();
 
     }
 
+    public  void openPayment(View v){
+        switch (v.getId()){
+            case R.id.btn_Payment:
+                Dialog dialog = new Dialog(MapsActivity.this);
+                dialog.setTitle("HÓA ĐƠN");
+                dialog.setCancelable(true);
+                dialog.setContentView(R.layout.activity_pill);
+                dialog.show();
+        }
+    }
+    private void controlButton() {
+        btn_payment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dialog dialog = new Dialog(MapsActivity.this);
+                dialog.setTitle("HÓA ĐƠN");
+                dialog.setCancelable(true);
+                dialog.setContentView(R.layout.activity_pill);
+                dialog.show();
+            }
+        });
+    }
+
+
+    private void view() {
+        btn_payment = (Button)findViewById(R.id.btn_Payment);
+    }
+
+    public void onClickCalc(View v){
+        switch (v.getId()){
+            case R.id.btn_distant:
+                String url = getUrl(address_1.getPosition(),address_2.getPosition(),"driving");
+                new FetchURL(MapsActivity.this).execute(url,"driving");
+        }
+    }
+
+    public String getUrl(LatLng origin, LatLng dest, String directionMode){
+        String str_origin = "origin" + origin.latitude + "," + origin.longitude;
+
+        String str_dest = "destination" + dest.latitude +"," + dest.longitude;
+
+        String mode = "mode" + directionMode;
+
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+
+        String output = "json";
+
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
+        return url;
+    }
     public void onClick(View v){
         switch (v.getId()){
             case R.id.btn_search:
@@ -150,6 +211,7 @@ public class MapsActivity extends FragmentActivity implements
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
         {
             buildGoogleApiClient();
+
             mMap.setMyLocationEnabled(true);
         }
 
@@ -226,7 +288,7 @@ public class MapsActivity extends FragmentActivity implements
         LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.title("User Current Location");
+        markerOptions.title("Your current location");
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
 
 
@@ -273,5 +335,13 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if(currentPolyline != null){
+            currentPolyline.remove();
+        }
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
     }
 }

@@ -20,16 +20,17 @@
         android:elevation="10dp"
         android:background="#ffffff"
         android:id="@+id/relLayout">
+
         <AutoCompleteTextView
-            android:layout_width="270dp"
+            android:id="@+id/input_search"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
-            android:textSize="15sp"
-            android:textColor="#000"
-            android:id="@+id/input_search"
             android:background="@null"
             android:hint="Enter Address"
-            android:imeOptions="actionSearch"/>
+            android:imeOptions="actionSearch"
+            android:textColor="#000"
+            android:textSize="15sp" />
 
         <ImageButton
             android:layout_width="50dp"
@@ -41,8 +42,8 @@
             android:src="@android:drawable/ic_menu_search" />
     </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="50dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_marginTop="70dp"
         android:layout_marginLeft="8dp"
@@ -51,16 +52,40 @@
 
         <ImageButton
             android:id="@+id/btn_distant"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="0dp"
             android:onClick="onClickCalc"
             android:src="@drawable/ic_btn_calc_foreground"
             tools:src="@drawable/ic_btn_calc_foreground" />
-    </RelativeLayout>
 
+        <Button
+            android:onClick="openPayment"
+            android:id="@+id/btn_Payment"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/btn_custom"
+            android:text="THANH TOÁN"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:id="@+id/relLayout_pm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="660dp"
+        android:layout_marginBottom="5dp"
+        android:elevation="10dp">
+
+
+
+    </RelativeLayout>
 
 </RelativeLayout>
 <!--<fragment -->
